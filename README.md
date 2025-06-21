@@ -31,10 +31,13 @@ The idea was to make something that just works — something a teacher or class 
 
 ## 🤖 Technologies used
 
-- Python 3
-- Pandas (for handling the data)
-- Datetime (for checking times)
-- Azure OpenAI GPT-4 (for the summary)
+- **Python 3** – Core programming language
+- **Pandas** – For reading and processing CSV files
+- **Datetime** – For handling time comparisons
+- **Azure OpenAI GPT-4** – For generating natural language summaries
+- **python-dotenv** – To load environment variables from `.env` securely
+- **OS module** – To access environment variables safely
+
 
 ---
 
