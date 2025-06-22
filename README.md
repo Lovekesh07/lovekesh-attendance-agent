@@ -1,68 +1,113 @@
-# lovekesh-attendance-agent
- An AI-powered autonomous agent that reads attendance, marks status, and generates GPT summaries.
+# 🎓 lovekesh-attendance-agent
 
-This is a simple Python-based AI tool I built during a Mini-hackathon organised by K.A.M.A.L.A , KAPIDHWAJ INNOVATIONS . It takes a CSV file of daily check-in times and automatically marks students as Present, Late, or Absent based on rules. Then it uses GPT (through Azure OpenAI) to generate a short, clean summary of the day.
+An autonomous Python-based **attendance agent** that:
+- ✅ Automatically marks students as Present, Late, or Absent
+- 🚨 Detects 3+ consecutive absentees and sends **email warnings**
+- 📄 Generates a PDF report of chronic absentees
+- 💡 Optionally generates GPT-powered summaries *(if added later)*
 
-The idea was to make something that just works — something a teacher or class rep can use daily without needing to do anything manually.
+Built during the **Mini-Hackathon** organized by [**K.A.M.A.L.A**](https://kamala.foundation) and **KAPIDHWAJ INNOVATIONS**, this tool is designed for class representatives and educators to streamline daily attendance with zero manual effort.
 
----
+## ⚙️ How It Works
 
-## 🔧 How it works
+1. 📥 Load `input.csv` — containing:
+   ```
+   Name,Check-In Time,Status,Date,Email
+   ```
 
-1. I load an `input.csv` file (Name + Check-In Time)
-2. The code checks:
-   - Present: On or before 9:00 AM
-   - Late: Between 9:01 and 9:15 AM
-   - Absent: After 9:15 AM or if time is blank
-3. It writes the output into `Output.csv` with a status and today’s date
-4. Finally, it asks GPT to generate a 2-line summary of the day, saved in `summary.txt`
+2. 🕒 Automatically marks:
+   - **Present**: On or before 9:00 AM  
+   - **Late**: Between 9:01 AM and 9:15 AM  
+   - **Absent**: After 9:15 AM or blank
 
----
+3. 🧠 Checks attendance history (`attendance_log.csv`) and:
+   - Detects students absent for **3+ consecutive days**
+   - Sends **warning emails** using Gmail SMTP
+   - Logs emails in `email_log.csv`
 
-## 📂 Files included
+4. 🧾 Generates a **PDF report** of flagged absentees
 
-- `app.py` → The main script
-- `input.csv` → Sample test data
-- `Output.csv` → Final structured output
-- `summary.txt` → AI-generated summary
-- `.env` → Not included (for security, contains API key)
+5. 🖨️ Prints daily stats:
+   - Total marked
+   - Absentees today
+   - Emails sent
 
----
+## 📁 Files Included
 
-## 🤖 Technologies used
+| File              | Description                                       |
+|-------------------|---------------------------------------------------|
+| `app.py`          | 💻 Main Python script                              |
+| `input.csv`       | 📝 Input attendance data for the day               |
+| `attendance_log.csv` | 📚 Historical attendance log (auto-updated)     |
+| `email_log.csv`   | 📬 Log of all emails sent (auto-generated)        |
+| `absentee_report.pdf` | 📄 PDF of chronic absentees (auto-generated)   |
+| `.env`            | 🔐 Email credentials (not shared in repo)         |
+| `README.md`       | 📘 You’re reading it!                              |
 
-- **Python 3** – Core programming language
-- **Pandas** – For reading and processing CSV files
-- **Datetime** – For handling time comparisons
-- **Azure OpenAI GPT-4** – For generating natural language summaries
-- **python-dotenv** – To load environment variables from `.env` securely
-- **OS module** – To access environment variables safely
+## 🔐 .env Format
 
+```env
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-app-password
+```
 
----
+> ✅ Use an [App Password](https://myaccount.google.com/apppasswords) if your Gmail has 2FA enabled.
 
-## 📌 Why I built this
+## 🖥️ How to Run
 
-Most attendance systems are still manual. I’ve seen teachers copy things from WhatsApp, students forget to mark, and people get marked absent by mistake.
+1. Install the required packages:
 
-I just wanted to make something quick and clean that could remove the boring part of it. And the GPT summary was a fun way to end it — something you could even post in a group chat.
+```bash
+pip install pandas python-dotenv reportlab pyfiglet
+```
 
----
+2. Set your `.env` credentials
 
-## 🚀 Future ideas
+3. Add today’s data in `input.csv`
 
-- Email/SMS alerts to absent students
-- A streak tracker (for consistent attendance)
-- Sync with Google Sheets or school systems
+4. Run:
 
----
+```bash
+python app.py
+```
 
-## 🙋‍♂️ About Me
+## 🧾 Output Example
 
-Hi, I’m Lovekesh. I enjoy building real things with code — not just for marks, but for fun and impact.
+```
+📅 Date Processed: 2025-06-20
+🧑‍🎓 Students Marked Today: 20
+❌ Absentees Today: 13
+📨 Emails Sent : 2
+```
 
-If you have ideas, feedback, or just want to say hi:
-- [LinkedIn](https://www.linkedin.com/in/lovekesh-524660370)
+## 🔮 Possible Extensions
 
----
+- ✉️ SMS or WhatsApp alerts
+- 📊 Attendance heatmaps or dashboards
+- 🧠 GPT-generated summaries of student trends
+- 🔗 Integration with school portals or Google Sheets
 
+## 💡 Why I Built This
+
+> Most systems are manual. Teachers scroll through group messages, students forget to mark themselves, and reps waste time.
+
+This project was born from a need to **automate the boring** — and add intelligence to it. I wanted something that:
+- 🧠 Thinks for me (via logic and GPT)
+- 📩 Warns students automatically
+- 📄 Documents absentees for record
+
+It just works — and saves 30 minutes a day.
+
+## 👨‍💻 About Me
+
+Hi, I’m **Lovekesh**, a BTech student who enjoys turning ideas into real-world tools.
+
+If you want to collaborate, suggest features, or just chat:
+
+- 💼 [LinkedIn](https://linkedin.com/)
+- 📧 [Email me](mailto:your-email@example.com)
+
+## 🪪 License
+
+Open-source for learning and educational use 🧑‍🏫  
+Feel free to fork, use, or remix — with credits appreciated!
