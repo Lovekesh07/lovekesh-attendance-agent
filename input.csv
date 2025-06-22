@@ -1,21 +1,21 @@
-﻿Name,Check-In Time
-Lovekesh,08:50 AM
-Dikshant,09:00 AM
-Manvi,09:50 AM
-Sagar,08:59 AM
-Shubham,
-Ansh,10:00 AM
-Nisha,
-Tanya,10:05 AM
-Shanya,08:00 AM
-Twinkle,09:30 AM
-Arpita,
-Sorabh,
-Mayank,09:00 AM
-Anjali,08:50 AM
-Simran,
-Muskan,
-Divya,
-Shikha,
-Krrishika,09:00 AM
-Aman,10:00 AM
+Name,Check-In Time,Status,Date,Email
+Lovekesh,08:50 AM,Present,2025-06-20,lovekesh@example.com
+Dikshant,09:00 AM,Present,2025-06-20,dikshant@example.com
+Manvi,09:50 AM,Present,2025-06-20,manvi@example.com
+Sagar,08:59 AM,Present,2025-06-20,sagar@example.com
+Shubham,,Absent,2025-06-20,shubham@example.com
+Ansh,10:00 AM,Present,2025-06-20,ansh@example.com
+Nisha,,Absent,2025-06-20,nisha@example.com
+Tanya,10:05 AM,Present,2025-06-20,tanya@example.com
+Shanya,08:00 AM,Present,2025-06-20,shanya@example.com
+Twinkle,09:30 AM,Present,2025-06-20,twinkle@example.com
+Arpita,,Absent,2025-06-20,arpita@example.com
+Sorabh,,Absent,2025-06-20,sorabh@example.com
+Mayank,09:00 AM,Present,2025-06-20,mayank@example.com
+Anjali,08:50 AM,Present,2025-06-20,anjali@example.com
+Simran,,Absent,2025-06-20,simran@example.com
+Muskan,,Absent,2025-06-20,muskan@example.com
+Divya,,Absent,2025-06-20,divya@example.com
+Shikha,,Absent,2025-06-20,shikha@example.com
+Krrishika,09:00 AM,Present,2025-06-20,krrishika@example.com
+Aman,10:00 AM,Present,2025-06-20,aman@example.com
