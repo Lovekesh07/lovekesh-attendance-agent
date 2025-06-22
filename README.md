@@ -44,14 +44,6 @@ Built during the **Mini-Hackathon** organized by [**K.A.M.A.L.A**](https://kamal
 | `.env`            | 🔐 Email credentials (not shared in repo)         |
 | `README.md`       | 📘 You’re reading it!                              |
 
-## 🔐 .env Format
-
-```env
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASS=your-app-password
-```
-
-> ✅ Use an [App Password](https://myaccount.google.com/apppasswords) if your Gmail has 2FA enabled.
 
 ## 🖥️ How to Run
 
