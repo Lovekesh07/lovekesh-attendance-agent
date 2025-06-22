@@ -1,0 +1,17 @@
+Attendance Summary for 2025-06-22
+
+Total Students: 20  
+Present: 7  
+Late: 0  
+Absent: 13  
+
+Latecomers: None  
+Absentees: Manvi, Shubham, Ansh, Nisha, Tanya, Twinkle, Arpita, Sorabh, Simran, Muskan, Divya, Shikha, Aman  
+
+Summary:  
+Attendance for today is quite low, with only 7 students present and 13 students absent. No latecomers were reported.  
+
+Check-In Recommendations:  
+It would be a good idea to check in with the following students, as their absence might indicate potential issues:  
+Manvi, Shubham, and Aman (if they have been frequently absent recently).  
+Additionally, any other students with a pattern of absenteeism should be contacted to understand and address their concerns.
