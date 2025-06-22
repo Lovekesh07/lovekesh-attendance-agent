@@ -1,90 +1,113 @@
-# Attendance Analyzer — Made by Lovekesh Poonia 💻
-
 import pandas as pd
-import os 
-from datetime import datetime, date
-from openai import AzureOpenAI
+from datetime import datetime
+import smtplib
+from email.message import EmailMessage
 from dotenv import load_dotenv
+import os
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+import pyfiglet
+
+banner = pyfiglet.figlet_format("Attendance Tracker")
+print(banner)
+
 load_dotenv()
+EMAIL_USER = os.getenv("EMAIL_USER")
+EMAIL_PASS = os.getenv("EMAIL_PASS")
 
-try:
-    att_data = pd.read_csv("input.csv")
-    print("✅ input.csv loaded.")
-except:
-    print("❌ File not found. Please place 'input.csv' in the same folder as this script.")
-    exit()
+if not EMAIL_USER or not EMAIL_PASS:
+    raise Exception("EMAIL_USER or EMAIL_PASS not set in .env")
 
-if "Name" not in att_data.columns or "Check-In Time" not in att_data.columns:
-    print("❌ Required columns missing! Ensure 'Name' and 'Check-In Time' are present.")
-    exit()
+today_attendance = pd.read_csv("input.csv")
+today_attendance.columns = today_attendance.columns.str.strip()
+today_attendance['Date'] = today_attendance['Date'].astype(str).str.strip()
+today_attendance['Date'] = pd.to_datetime(today_attendance['Date'], errors='coerce')
+today_attendance.dropna(subset=['Date'], inplace=True)
 
-def check_time(t):
-    try:
-        return datetime.strptime(t, "%I:%M %p")
-    except:
-        return None  
+log_file = "attendance_log.csv"
 
-def get_status(time_obj):
-    if time_obj is None:
-        return "Absent"
-    elif time_obj <= datetime.strptime("09:00 AM", "%I:%M %p"):
-        return "Present"
-    elif time_obj <= datetime.strptime("09:15 AM", "%I:%M %p"):
-        return "Late"
-    else:
-        return "Absent"
+if os.path.exists(log_file) and os.path.getsize(log_file) > 0:
+    log_df = pd.read_csv(log_file)
+    log_df.columns = log_df.columns.str.strip()
+    log_df['Date'] = pd.to_datetime(log_df['Date'], errors='coerce')
+    log_df.dropna(subset=['Date'], inplace=True)
+    combined = pd.concat([log_df, today_attendance], ignore_index=True)
+else:
+    combined = today_attendance
 
-att_data["ParsedTime"] = att_data["Check-In Time"].apply(check_time)
-att_data["Status"] = att_data["ParsedTime"].apply(get_status)
-att_data["Date"] = date.today().strftime("%Y-%m-%d")
-att_data.drop("ParsedTime", axis=1, inplace=True)
+combined.drop_duplicates(subset=["Name", "Date"], keep="last", inplace=True)
+combined.sort_values(by=['Name', 'Date'], inplace=True)
+combined.to_csv(log_file, index=False)
 
-output_file = "Output.csv"
-att_data.to_csv(output_file, index=False)
-print(f"✅ Structured attendance saved as '{output_file}'")
+def detect_consecutive_absences(df, min_days=3):
+    alerts = []
+    for name, group in df.groupby('Name'):
+        group = group.sort_values('Date').reset_index(drop=True)
+        if "Email" not in group.columns:
+            continue
+        absent_dates = group[group["Status"].astype(str).str.lower() == "absent"]["Date"].reset_index(drop=True)
+        count = 1
+        for i in range(1, len(absent_dates)):
+            if (absent_dates[i] - absent_dates[i - 1]).days == 1:
+                count += 1
+                if count >= min_days:
+                    alerts.append((name, group.iloc[0]["Email"], absent_dates[i]))
+                    break
+            else:
+                count = 1
+    return alerts
 
-client = AzureOpenAI(
-    api_key=os.getenv("AZURE_OPENAI_KEY"),
-    api_version="2024-12-01-preview",
-    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
-)
+def send_warning_email(to, name, last_date):
+    msg = EmailMessage()
+    msg['Subject'] = "Attendance Alert: 3+ Days Absent"
+    msg['From'] = EMAIL_USER
+    msg['To'] = to
+    msg.set_content(f"Hi {name}, you've been absent for 3+ consecutive days as of {last_date.date()}.")
 
-present = att_data[att_data["Status"] == "Present"]
-late = att_data[att_data["Status"] == "Late"]
-absent = att_data[att_data["Status"] == "Absent"]
+    msg.add_alternative(f"""
+    <html>
+      <body>
+        <p>Hi <strong>{name}</strong>,</p>
+        <p>We noticed that you've been <span style="color:red;"><strong>absent for 3 or more consecutive days</strong></span>, with your last absence recorded on <strong>{last_date.date()}</strong>.</p>
+        <p>If you're facing any issues or need support, feel free to reach out.<br><br>
+        <em>We're here to help!</em></p>
+        <p>Best regards,<br>
+        <strong>Your Class Representative</strong></p>
+      </body>
+    </html>
+    """, subtype='html')
 
-summary_prompt = f"""
-Today’s attendance at a glance:
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+        smtp.login(EMAIL_USER, EMAIL_PASS)
+        smtp.send_message(msg)
 
-Total: {len(att_data)}
-Present: {len(present)}
-Late: {len(late)}
-Absent: {len(absent)}
+    log_email(name, to, last_date)
 
-Latecomers: {', '.join(late['Name'].tolist()) or 'None'}
-Absent: {', '.join(absent['Name'].tolist()) or 'None'}
+def log_email(name, email, date):
+    with open("email_log.csv", "a") as f:
+        f.write(f"{name},{email},{date},{datetime.now()}\n")
 
-Write a short 2-3 line summary update that sounds friendly and clear.
-"""
+def export_absentees_to_pdf(absentees):
+    c = canvas.Canvas("absentee_report.pdf", pagesize=A4)
+    c.setFont("Helvetica", 14)
+    c.drawString(100, 800, "🚨 Students Absent 3+ Days in a Row:")
+    y = 780
+    for name, email, date in absentees:
+        c.drawString(100, y, f"{name} ({email}) - Last Absence: {date.date()}")
+        y -= 20
+    c.save()
 
-try:
-    response = client.chat.completions.create(
-        model="mindcraft-gpt4o",
-        messages=[{"role": "user", "content": summary_prompt}],
-        temperature=0.5,
-        max_tokens=100
-    )
+combined['Date'] = pd.to_datetime(combined['Date'], errors='coerce')
+combined.dropna(subset=['Date'], inplace=True)
 
-    summary = response.choices[0].message.content
-    print("\n📝 Daily Attendance Summary:\n")
-    print(summary)
+absentees = detect_consecutive_absences(combined)
 
-    with open("summary.txt", "w",encoding="utf-8") as f:
-        f.write(summary + "\n\n— Generated by Lovekesh’s Attendance Bot\n Date: " + date.today().strftime("%Y-%m-%d") + "\n📂 File: summary.txt")
+for name, email, last_date in absentees:
+    send_warning_email(email, name, last_date)
 
-except Exception as e:
-    print("⚠️ GPT-4 summary failed:", e)
+export_absentees_to_pdf(absentees)
 
-print("\n📢 Attendance processed by Lovekesh’s AI Agent ")
-print("📅 Date:", date.today().strftime("%Y-%m-%d"))
-print("📂 File:", output_file)
+print(f"\n📅 Date Processed: {today_attendance['Date'].iloc[0].date()}")
+print(f"🧑‍🎓 Students Marked Today: {today_attendance['Name'].nunique()}")
+print(f"❌ Absentees Today: {today_attendance[today_attendance['Status'].astype(str).str.lower() == 'absent']['Name'].nunique()}")
+print(f"📨 Emails Sent : {len(absentees)}")
