@@ -97,9 +97,5 @@ Hi, I’m **Lovekesh**, a BTech student who enjoys turning ideas into real-world
 If you want to collaborate, suggest features, or just chat:
 
 - 💼 [LinkedIn](https://linkedin.com/)
-- 📧 [Email me](mailto:your-email@example.com)
+- 📧 [Email me](lovekeshpoonia2006@gmail.com)
 
-## 🪪 License
-
-Open-source for learning and educational use 🧑‍🏫  
-Feel free to fork, use, or remix — with credits appreciated!
